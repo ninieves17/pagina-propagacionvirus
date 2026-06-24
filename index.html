@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar de Ciberseguridad: Simulación Virus ILOVEYOU (2000)</title>
+    <!-- Google Fonts: Share Tech Mono (Classic terminal vibe) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- MathJax for formula formatting -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="crt-overlay">
+
+    <!-- SCANLINE EFFECT -->
+    <div class="scanlines"></div>
+
+    <!-- MAIN TERMINAL WRAPPER -->
+    <div class="terminal-shell">
+        
+        <!-- Header -->
+        <header class="terminal-header">
+            <div class="header-left">
+                <i class="fa-solid fa-shield-virus header-icon text-glow-green"></i>
+                <span class="system-title text-glow-green">DEC_SYSTEM://ILOVEYOU-OUTBREAK_SIMULATOR</span>
+            </div>
+            <div class="header-center">
+                <span class="threat-indicator" id="threat-indicator">NIVEL DE AMENAZA: BAJO</span>
+            </div>
+            <div class="header-right">
+                <span class="terminal-date">FECHA: 04-MAY-2000</span>
+                <span class="terminal-clock" id="terminal-clock">10:00:00 UTC</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="terminal-tabs" aria-label="Terminal Navigation">
+            <button class="terminal-tab-btn active" data-tab="tab-simulator" id="btn-tab-sim">
+                [ 1. RADAR DE INFECCIÓN Y STORYTELLING ]
+            </button>
+            <button class="terminal-tab-btn" data-tab="tab-math" id="btn-tab-math">
+                [ 2. ANÁLISIS DEL MODELO SIR ]
+            </button>
+        </nav>
+
+        <!-- CONTENT AREA -->
+        <main class="terminal-content">
+            
+            <!-- TAB 1: SIMULATION AND STORYTELLING -->
+            <section id="tab-simulator" class="terminal-pane active">
+                <div class="simulator-layout">
+                    
+                    <!-- Left: Control Panel -->
+                    <div class="terminal-section control-panel">
+                        <div class="section-title">&gt;_ PARAMETROS_DE_RED</div>
+                        
+                        <div class="control-group">
+                            <label for="slider-n">
+                                Población Total (N): <span class="val-display" id="disp-n">100,000</span>
+                            </label>
+                            <input type="range" min="10000" max="1000000" step="10000" value="100000" id="slider-n">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="slider-beta">
+                                Tasa de Infección (&beta;): <span class="val-display" id="disp-beta">0.45</span>
+                                <i class="fa-solid fa-circle-info tooltip" title="Probabilidad de que un host vulnerable abra el correo y active el virus."></i>
+                            </label>
+                            <input type="range" min="0.05" max="1.0" step="0.05" value="0.45" id="slider-beta">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="slider-gamma">
+                                Tasa de Parcheo (&gamma;): <span class="val-display" id="disp-gamma">0.10</span>
+                                <i class="fa-solid fa-circle-info tooltip" title="Tasa a la cual las computadoras infectadas son limpiadas y parcheadas."></i>
+                            </label>
+                            <input type="range" min="0.01" max="0.5" step="0.01" value="0.10" id="slider-gamma">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="slider-i0">
+                                Infectados Iniciales ($I_0$): <span class="val-display" id="disp-i0">1</span>
+                            </label>
+                            <input type="range" min="1" max="100" step="1" value="1" id="slider-i0">
+                        </div>
+
+                        <div class="control-group">
+                            <label for="sim-speed">Velocidad del Bucle:</label>
+                            <select id="sim-speed" class="terminal-select">
+                                <option value="800">Lento (1 paso = 0.8s)</option>
+                                <option value="400" selected>Normal (1 paso = 0.4s)</option>
+                                <option value="150">Rápido (1 paso = 0.15s)</option>
+                            </select>
+                        </div>
+
+                        <div class="actions-group">
+                            <button id="btn-start" class="btn-terminal btn-run">
+                                <i class="fa-solid fa-play"></i> INICIAR INFECCIÓN
+                            </button>
+                            <button id="btn-pause" class="btn-terminal btn-hold" disabled>
+                                <i class="fa-solid fa-pause"></i> PAUSAR
+                            </button>
+                            <button id="btn-reset" class="btn-terminal btn-clear">
+                                <i class="fa-solid fa-rotate-left"></i> REINICIAR
+                            </button>
+                        </div>
+
+                        <div class="stats-panel">
+                            <div class="stat-row">
+                                <span>SUSCEPTIBLES:</span>
+                                <span class="stat-number text-cyan" id="stat-s">100,000</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>INFECTADOS:</span>
+                                <span class="stat-number text-red" id="stat-i">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>RECUPERADOS:</span>
+                                <span class="stat-number text-green" id="stat-r">0</span>
+                            </div>
+                            <div class="stat-row border-top">
+                                <span>DÍA ACTUAL:</span>
+                                <span class="stat-number text-yellow" id="stat-day">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right/Center: Charts & Storytelling -->
+                    <div class="simulation-dashboard">
+                        
+                        <!-- Chart container -->
+                        <div class="terminal-section chart-section">
+                            <div class="section-title">&gt;_ GRAFICO_PROPAGACION_SIR</div>
+                            <div class="chart-canvas-container">
+                                <canvas id="sirChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Incident Console Log (Storytelling) -->
+                        <div class="terminal-section console-log-section">
+                            <div class="section-title">
+                                <span>&gt;_ BITACORA_DE_INCIDENTES_HISTORICOS</span>
+                                <span class="blink cursor">_</span>
+                            </div>
+                            <div class="console-screen" id="console-screen">
+                                <p class="console-line line-system">[SYSTEM INITIALIZED] Esperando orden de ejecución del simulador...</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: MATHEMATICAL MODEL AND DATA TABLE -->
+            <section id="tab-math" class="terminal-pane">
+                <div class="math-layout">
+                    
+                    <!-- Theoretical Background -->
+                    <div class="terminal-section math-theory-section">
+                        <div class="section-title">&gt;_ EXPLICACION_MODELO_SIR_MALWARE</div>
+                        <div class="theory-body">
+                            <p>El modelo <strong>SIR</strong> fue propuesto originalmente para modelar brotes de enfermedades biológicas. En el año 2000, los analistas de seguridad descubrieron que el patrón de contagio del virus <strong>ILOVEYOU</strong> (que usaba agendas de direcciones de Outlook) se comportaba matemáticamente igual al de un patógeno biológico:</p>
+                            
+                            <div class="grid-variables">
+                                <div class="var-card">
+                                    <span class="var-symbol text-cyan">$S(t)$</span>
+                                    <span class="var-name">Susceptibles</span>
+                                    <p>Computadoras vulnerables. En el año 2000, cualquier PC corriendo Windows con Microsoft Outlook configurado y sin parches preventivos.</p>
+                                </div>
+                                <div class="var-card">
+                                    <span class="var-symbol text-red">$I(t)$</span>
+                                    <span class="var-name">Infectados</span>
+                                    <p>Computadoras infectadas. Envían copias del script <code>LOVE-LETTER-FOR-YOU.txt.vbs</code> a toda la lista de contactos del usuario.</p>
+                                </div>
+                                <div class="var-card">
+                                    <span class="var-symbol text-green">$R(t)$</span>
+                                    <span class="var-name">Recuperados</span>
+                                    <p>Computadoras parcheadas o limpiadas. Hosts donde se ha eliminado el malware y se ha configurado el filtro de archivos adjuntos .vbs.</p>
+                                </div>
+                            </div>
+
+                            <div class="math-formulas-box">
+                                <h3>Ecuaciones Diferenciales Continuas</h3>
+                                $$\frac{dS}{dt} = -\frac{\beta \cdot S \cdot I}{N}$$
+                                $$\frac{dI}{dt} = \frac{\beta \cdot S \cdot I}{N} - \gamma \cdot I$$
+                                $$\frac{dR}{dt} = \gamma \cdot I$$
+                                
+                                <h3 style="margin-top: 24px;">Implementación Discreta (Método de Euler, dt = 1 Día)</h3>
+                                <p>Para calcular secuencialmente en JavaScript los estados futuros día tras día:</p>
+                                $$S_{t+1} = S_t - \left(\frac{\beta \cdot S_t \cdot I_t}{N}\right)$$
+                                $$I_{t+1} = I_t + \left(\frac{\beta \cdot S_t \cdot I_t}{N} - \gamma \cdot I_t\right)$$
+                                $$R_{t+1} = R_t + \gamma \cdot I_t$$
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Table of historical values -->
+                    <div class="terminal-section math-table-section">
+                        <div class="section-title">
+                            <span>&gt;_ REGISTRO_TEMPORAL_HISTORICO_SIR</span>
+                            <button id="btn-export-csv" class="btn-terminal-sm"><i class="fa-solid fa-file-csv"></i> Exportar Tabla</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="terminal-table" id="simulation-table">
+                                <thead>
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Susceptibles (S)</th>
+                                        <th>Infectados (I)</th>
+                                        <th>Recuperados (R)</th>
+                                        <th>S+I+R</th>
+                                        <th>Tasa de Infección</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="6" class="td-empty">Inicia la simulación en la pestaña 1 para poblar la tabla...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer status bar -->
+        <footer class="terminal-footer">
+            <div class="footer-segment">
+                <span class="pulse-indicator"></span>
+                <span>STATUS: OPERATIVO</span>
+            </div>
+            <div class="footer-segment">
+                <span>CONEXIÓN: SECURE_SHELL</span>
+            </div>
+            <div class="footer-segment">
+                <span>MEM: 98% FREE</span>
+            </div>
+            <div class="footer-segment">
+                <span>ENERGÍA: AC_ON</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- CRITICAL ALERT BLINK OVERLAY (Simulating compromised environment) -->
+    <div class="critical-alert-overlay" id="critical-alert-overlay">
+        <div class="alert-container">
+            <div class="alert-header">
+                <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                <span>ALERT: GLOBAL SYSTEM COMPROMISED</span>
+                <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+            </div>
+            <div class="alert-body">
+                <div class="warning-text">VIRUS OUTBREAK EXCEEDS CRITICAL THRESHOLD!</div>
+                <div class="metric-highlight">TASA DE INFECCIÓN ACTIVA: <span id="alert-pct">0%</span></div>
+                <p>Las redes de correo electrónico en Europa, América y Asia están colapsadas bajo millones de correos del asunto: 'ILOVEYOU'. El Pentágono y el Parlamento Británico reportan apagado total de servidores SMTP.</p>
+                <div class="nodes-grid">
+                    <div class="node-status status-offline">MANILA: DOWN</div>
+                    <div class="node-status status-offline">LONDON: DOWN</div>
+                    <div class="node-status status-offline">WASHINGTON: DOWN</div>
+                    <div class="node-status status-offline">TOKYO: DOWN</div>
+                    <div class="node-status status-offline">PARIS: DOWN</div>
+                    <div class="node-status status-offline">BERLIN: DOWN</div>
+                </div>
+                <button id="btn-close-alert" class="btn-terminal btn-alert-dismiss">DESACTIVAR ALARMA DE RED</button>
+            </div>
+        </div>
+    </div>
+    <!-- Custom JavaScript Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
+
